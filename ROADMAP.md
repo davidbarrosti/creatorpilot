@@ -4,47 +4,46 @@
 
 ---
 
-## 📅 Sprint 0: Setup & Foundation (Week 1)
+## 📅 Sprint 0: Setup & Foundation (Week 1) — ✅ concluído em 2026-07-27
 **Goal:** Project scaffolding, database, and boilerplate
 
-- [ ] **Project Setup**
-  - [ ] Initialize Next.js 14 project with TypeScript
-  - [ ] Setup Tailwind CSS + shadcn/ui
-  - [ ] Configure path aliases (@/*)
-  - [ ] Setup `.env.local` with all variables
+- [x] **Project Setup**
+  - [x] Initialize Next.js project with TypeScript (Next.js 16, não 14 — projeto começou em julho/2026, ver docs/ARCHITECTURE.md)
+  - [x] Setup Tailwind CSS (v4, CSS-first config — sem shadcn/ui ainda, adiado pra quando as telas reais forem construídas)
+  - [x] Configure path aliases (@/*)
+  - [x] Setup `.env.local` with all variables (mock mode — Supabase e TikTok ainda não configurados de verdade)
 
 - [ ] **Database (Supabase)**
-  - [ ] Create Supabase project
-  - [ ] Create database schema (migrations):
-    - [ ] `creators` table (profiles, settings)
-    - [ ] `products` table (cache from TikTok API)
-    - [ ] `collaborations` table (affiliate partnerships)
-    - [ ] `performance_logs` table (earnings, clicks, conversions)
-    - [ ] `calendar_entries` table (content planning)
-  - [ ] Setup authentication with Supabase Auth
-  - [ ] Seed database with mock data
-  - [ ] Test local Supabase: `supabase start`
+  - [ ] Create Supabase project — **pendente, você ainda não tem um projeto criado**
+  - [x] Create database schema (migrations) — nomes corrigidos pro schema do PRD.md, não os daqui embaixo:
+    - [x] `profiles` (não `creators`)
+    - [x] `products_cache` (não `products`)
+    - [x] `collabs` (não `collaborations`)
+    - [x] `briefs`, `hooks_library`
+    - [x] `performance_daily` (não `performance_logs`)
+    - [x] `calendar_entries`
+  - [ ] Setup authentication with Supabase Auth — código pronto (`src/lib/supabase/`, `src/proxy.ts`, `/login`, `/auth/callback`), falta só um projeto Supabase real pra testar de ponta a ponta
+  - [x] Seed database with mock data (`supabase/seed.sql` + `src/lib/tiktok/mocks.ts`, este último não depende do Supabase)
+  - [ ] Test local Supabase: `supabase start` — pendente (depende do projeto criado)
 
-- [ ] **PWA Setup**
-  - [ ] Create `public/manifest.json`
-  - [ ] Create `public/app-192x192.png` + `app-512x512.png`
-  - [ ] Setup service worker (`src/public/sw.js`)
-  - [ ] Configure `next.config.ts` for PWA support
+- [x] **PWA Setup**
+  - [x] Create `public/manifest.json`
+  - [ ] Create `public/icons/icon-192.png` + `icon-512.png` — **pendente, faltam os assets de marca reais** (ver `public/icons/README.md`)
+  - [x] Setup service worker (`public/sw.js` + registro em `src/components/layout/ServiceWorkerRegister.tsx`)
+  - [x] Configure `next.config.ts` for PWA support
 
-- [ ] **API Structure**
-  - [ ] Setup API routes structure (`src/app/api/`)
-  - [ ] Create TikTok Shop API client (`src/lib/tiktok/api.ts`)
-  - [ ] Create Claude API client (`src/lib/claude/client.ts`)
-  - [ ] Create database helpers (`src/lib/supabase/database.ts`)
-  - [ ] Setup mock data adapter pattern
+- [x] **API Structure**
+  - [x] Setup route structure (`src/app/dashboard/*`, `src/app/auth/callback/route.ts`)
+  - [x] Create TikTok Shop API client (`src/lib/tiktok/api.ts`, `affiliateCreator.ts`, `auth.ts`) — endpoints reais ainda não confirmados (bugs.md BUG-001), mas OAuth flow e adapter pattern prontos
+  - [x] Create Claude API client (`src/lib/ai/briefGenerator.ts`, usa tool-use pra output estruturado)
+  - [x] Create Supabase clients (`src/lib/supabase/client.ts`, `server.ts`)
+  - [x] Setup mock data adapter pattern (`NEXT_PUBLIC_USE_MOCK`)
 
 - [ ] **Deployment**
-  - [ ] Create GitHub repository
-  - [ ] Push initial commit
-  - [ ] Setup Contabo VPS (basic SSH access + Node.js)
-  - [ ] Test initial deployment with `/api/health` endpoint
+  - [x] Create GitHub repository + push initial commit — [github.com/davidbarrosti/creatorpilot](https://github.com/davidbarrosti/creatorpilot)
+  - [ ] Setup Contabo VPS — **intencionalmente adiado pro Sprint 7**, conforme seção 11 do PRD (mock-first, VPS só entra na integração real)
 
-**Success Criteria:** `npm run dev` works, mock data loads, basic pages render
+**Success Criteria:** ✅ `npm run build` e `npm run dev` validados — Radar renderiza os 4 produtos mockados com score de oportunidade calculado (HTTP 200 confirmado em teste real).
 
 ---
 

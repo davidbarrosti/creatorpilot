@@ -4,11 +4,11 @@
 
 A unified cockpit for creators to discover trending products, generate AI-powered content briefs, manage collaborations, track performance, and plan their content calendar — all in one place.
 
-![Status](https://img.shields.io/badge/status-Planning-lightgrey)
+![Status](https://img.shields.io/badge/status-Sprint%200%20done-blue)
 ![TikTok Shop Partner](https://img.shields.io/badge/TikTok%20Shop-Registration%20Blocked-red)
-![Stack](https://img.shields.io/badge/Stack-Next.js%20|%20Supabase%20|%20Claude%20API-black)
+![Stack](https://img.shields.io/badge/Stack-Next.js%2016%20|%20Supabase%20|%20Claude%20API-black)
 
-> **Status atual:** o registro do app no TikTok Shop Partner Center ainda está bloqueado (ver [bugs.md](bugs.md) — BUG-001). Nenhum código de aplicação foi escrito ainda. Não existem credenciais reais de TikTok Shop Client ID/Secret disponíveis — não procure por elas ainda.
+> **Status atual:** Sprint 0 concluído — projeto Next.js real rodando localmente com dados mockados (sem Supabase nem TikTok configurados ainda). O registro do app no TikTok Shop Partner Center segue bloqueado (ver [bugs.md](bugs.md) — BUG-001) e não existem credenciais reais de TikTok Shop App Key/Secret — não procure por elas ainda.
 
 ---
 
@@ -40,10 +40,10 @@ A unified cockpit for creators to discover trending products, generate AI-powere
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+
-- Supabase account (free tier works)
+- Node.js 20+
+- Supabase account (free tier works) — ⚠️ ainda não criado neste projeto
 - TikTok Shop Partner Center approval — ⚠️ **ainda não obtida**, registro bloqueado (ver [bugs.md](bugs.md) BUG-001). Até resolver, use `NEXT_PUBLIC_USE_MOCK=true`.
-- Anthropic API key (Claude)
+- Anthropic API key (Claude) — para o módulo de Briefing
 
 ### Installation
 
@@ -57,16 +57,15 @@ npm install
 
 # Setup environment
 cp .env.example .env.local
-# Fill in your keys:
+# Fill in your keys (veja .env.example para a lista completa):
 # NEXT_PUBLIC_SUPABASE_URL
 # NEXT_PUBLIC_SUPABASE_ANON_KEY
 # ANTHROPIC_API_KEY
-# TIKTOK_SHOP_CLIENT_ID
-# TIKTOK_SHOP_CLIENT_SECRET
+# TIKTOK_SHOP_APP_KEY / TIKTOK_SHOP_APP_SECRET (não existem ainda — BUG-001)
 
-# Run locally
+# Run locally (funciona sem Supabase/TikTok configurados, em modo mock)
 npm run dev
-# Open http://localhost:3000
+# Open http://localhost:3000 (ou a porta que o terminal indicar, se 3000 estiver ocupada)
 ```
 
 ### Deploy to Contabo
@@ -86,29 +85,32 @@ npm run build
 ```
 creatorpilot/
 ├── src/
-│   ├── app/              # Next.js 14 app router
-│   │   ├── dashboard/    # Main 5 modules
-│   │   ├── api/         # API routes
-│   │   └── auth/        # Login/OAuth
-│   ├── components/       # Reusable UI components
+│   ├── app/              # Next.js App Router
+│   │   ├── dashboard/    # Os 5 módulos (radar, brief, collabs, performance, calendar)
+│   │   ├── login/        # Auth (magic link)
+│   │   └── auth/callback/  # OAuth/magic link callback
+│   ├── components/       # Componentes (layout, radar, ...)
 │   ├── lib/
-│   │   ├── tiktok/      # TikTok Shop API integration
-│   │   ├── supabase/    # Database helpers
-│   │   └── claude/      # Anthropic API integration
-│   └── types/           # TypeScript definitions
-├── public/               # Static assets
-├── prisma/               # Database schema (Supabase)
-├── docs/                 # Documentation
-│   ├── API.md
-│   ├── ARCHITECTURE.md
-│   └── DEPLOYMENT.md
-└── PRD.md               # This document
+│   │   ├── tiktok/       # Adapter pattern: api.ts, affiliateCreator.ts, mocks.ts, auth.ts
+│   │   ├── supabase/     # client.ts (browser), server.ts (SSR)
+│   │   ├── ai/           # briefGenerator.ts (Claude API)
+│   │   └── utils/        # scoring.ts, formatters.ts
+│   ├── types/            # Fonte da verdade dos tipos — ver TYPES.md
+│   └── proxy.ts          # Auth guard (era middleware.ts — renomeado no Next.js 16)
+├── supabase/
+│   ├── migrations/       # SQL, 1:1 com PRD.md seção 9
+│   └── seed.sql
+├── public/               # manifest.json, sw.js, icons/
+├── docs/
+│   ├── API.md            # TikTok Shop Affiliate Creator API
+│   └── ARCHITECTURE.md   # decisões técnicas, inclusive as do Sprint 0
+└── PRD.md
 ```
 
 **Stack:**
-- **Frontend**: Next.js 14 (App Router) + TypeScript + Tailwind CSS + shadcn/ui
+- **Frontend**: Next.js 16 (App Router) + TypeScript + Tailwind CSS 4
 - **Mobile**: PWA (responsive + installable)
-- **Backend**: Next.js API routes + Supabase (auth + database)
+- **Backend**: Supabase (auth + database + RLS)
 - **APIs**: TikTok Shop Affiliate Creator API + Claude API + custom webhooks
 - **Hosting**: Contabo VPS
 
@@ -116,14 +118,16 @@ creatorpilot/
 
 ## 📅 Roadmap (MVP: 12 weeks)
 
-### 🚧 Sprint 0: Setup (Week 1) — em andamento
-- [ ] Register as TikTok Shop Developer — **bloqueado, ver bugs.md BUG-001**
-- [ ] Get Partner Center approval
-- [ ] Create Next.js project + Supabase setup
-- [ ] Tailwind + shadcn/ui configuration
-- [ ] PWA manifest + service worker
-- [ ] Deploy initial skeleton to Contabo
-- [ ] Mock database seed with sample data
+### ✅ Sprint 0: Setup (Week 1) — concluído em 2026-07-27
+- [ ] Register as TikTok Shop Developer — **bloqueado, ver bugs.md BUG-001** (não impede o resto do Sprint 0)
+- [x] Create Next.js project + folder structure
+- [x] Tailwind config (v4)
+- [x] PWA manifest + service worker (faltam ícones reais, ver `public/icons/README.md`)
+- [x] Mock data adapter (`src/lib/tiktok/mocks.ts`) + Radar renderizando dados mockados (`npm run build`/`npm run dev` validados)
+- [ ] Supabase project — ainda não criado, migrations prontas em `supabase/migrations/`
+- [ ] Deploy skeleton to Contabo — adiado pro Sprint 7 de propósito (ver docs/ARCHITECTURE.md)
+
+Checklist completo com detalhes: [ROADMAP.md](ROADMAP.md).
 
 ### 🚀 Sprint 1: Auth + Layout (Week 2)
 - [ ] Supabase Auth (email/magic link)
@@ -267,5 +271,5 @@ Questions? Issues?
 
 **Built with ❤️ by [D4M4 Soluções](https://d4m4.dev)**
 
-Status: ⚪ **Planejamento — registro no TikTok Shop Partner Center bloqueado** (ver [bugs.md](bugs.md))
+Status: 🔵 **Sprint 0 concluído — Sprint 1 (Auth + Layout) é o próximo.** Registro no TikTok Shop Partner Center segue bloqueado (ver [bugs.md](bugs.md))
 Last updated: July 27, 2026

@@ -49,7 +49,7 @@ Arquivo vivo para registrar erros encontrados durante o desenvolvimento. Um bug 
 - **Data:** 2026-07-20
 - **Módulo:** Infra (registro externo, não é código nosso)
 - **Severidade:** 🟠 Alta (bloqueia o Sprint 0 — não dá pra criar o app)
-- **Status:** Em investigação — causa raiz identificada
+- **Status:** Provavelmente destravado — a confirmar
 - **Ambiente:** TikTok Shop Partner Center (produção, console deles)
 
 **Descrição:**
@@ -68,4 +68,4 @@ Ao criar o app CreatorPilot no Partner Center (fluxo `/service/create`), o formu
 Não é um bug de UX — é uma trava proposital. A conta DDNS Soluções tem 4 qualificações de "Desenvolvedor de apps" pré-notificadas (Catálogo/Anúncio de produtos, Conectores, Multicanal, Impressão sob demanda), mas **todas em estado "Rascunho - Aguardando envio"** — nenhuma ativa/aprovada. O botão "Criar" em `/service/create` exige pelo menos uma qualificação de Desenvolvedor de apps **ativa** (submetida e aprovada) antes de permitir a criação de um novo app/serviço.
 
 **Correção aplicada:**
-Em andamento — verificando em `/approval/profile` (aba "Desenvolvedor de apps") se existe uma categoria relacionada a "Affiliate/Creator" pra submeter (via botão "+"), em vez de submeter uma das 4 genéricas que não têm relação com o produto. Se não existir, vamos submeter a mais próxima só para destravar o fluxo (pré-requisito técnico do sistema), e depois configurar os scopes reais via Manage API.
+Em 2026-07-27, a TikTok Shop Partner Center aprovou a qualificação **"Analytics & Reporting - Brazil"** pra conta DDNS Soluções ("You may now log into the TikTok Shop Partner Center as our partner"). Não é a categoria "Affiliate" que tínhamos identificado como ideal — precisa confirmar se essa aprovação já é suficiente pra destravar `/service/create`, e se o app criado como "Creator / affiliate integrator" + "Customer Engagement → Affiliate" consegue mesmo assim (essas são seleções feitas na hora de criar o app, independentes da qualificação de "Desenvolvedor de apps" aprovada). Próximo passo: tentar `/service/create` de novo.

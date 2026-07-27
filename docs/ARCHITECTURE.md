@@ -1,5 +1,7 @@
 # ARCHITECTURE.md
 
+> **Status:** Sprint 0 (setup) concluído em 2026-07-27 — projeto Next.js real, `npm run build` e `npm run dev` validados, Radar renderiza dados mockados end-to-end. Ver [ROADMAP.md](../ROADMAP.md).
+
 ## Stack
 
 - **Frontend:** Next.js 14+ (App Router), TypeScript, Tailwind CSS, PWA (Service Worker + manifest)
@@ -70,6 +72,14 @@ export async function getProducts(filters: ProductFilters) {
   return fetchTikTokProducts(filters);
 }
 ```
+
+## Decisões tomadas no Sprint 0 (não estavam no PRD original)
+
+- **Versões:** PRD dizia "Next.js 14+"; como o projeto começou do zero em julho/2026, usamos as versões atuais: Next.js 16, React 19, Tailwind CSS 4 (config CSS-first via `@theme` em `globals.css`, sem `tailwind.config.ts`). TypeScript ficou fixado em `^6.0.3` (não `7.x`) porque o Next.js 16 ainda não suporta a API do compilador do TypeScript 7 (erro confirmado em build real).
+- **`middleware.ts` → `proxy.ts`:** Next.js 16 renomeou a convenção; usamos `src/proxy.ts` com `export function proxy(...)` (não `middleware`).
+- **Rotas dos módulos usam `/dashboard/radar` etc. (pasta real, não route group `(dashboard)`)**, diferente do diagrama da seção 8 do PRD (que usava `(dashboard)/radar`). Escolhido porque simplifica o matcher do proxy/auth (`/dashboard/:path*`) e bate com o `ROADMAP.md`. É um detalhe de implementação, não uma mudança de produto.
+- **`src/lib/tiktok/`** segue o padrão adapter: `api.ts` (interface pública, usada pelo resto do app) decide entre `mocks.ts` (dados 100% locais, sem Supabase) e `affiliateCreator.ts` (chamadas reais — endpoints ainda não confirmados, ver `docs/API.md`) via `NEXT_PUBLIC_USE_MOCK`.
+- **`src/proxy.ts` não quebra em dev sem Supabase configurado:** se `NEXT_PUBLIC_SUPABASE_URL` não estiver setada, o proxy pula a checagem de auth em vez de derrubar toda rota `/dashboard/*` — necessário porque o Sprint 0 rodou sem projeto Supabase criado ainda.
 
 ## Decisões de arquitetura em aberto
 

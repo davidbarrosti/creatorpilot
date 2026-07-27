@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme {
+  /* Score indicators used across Radar (opportunity score) and Performance */
+  --color-opportunity-high: #22c55e;
+  --color-opportunity-medium: #eab308;
+  --color-opportunity-low: #ef4444;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+}
