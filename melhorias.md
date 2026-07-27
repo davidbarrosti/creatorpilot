@@ -128,11 +128,15 @@ Confirmado também: existem **3 famílias de Affiliate API** — Affiliate Selle
 
 ### MEL-006 — Mercados suportados pela Affiliate Creator API: US + SEA confirmados, Brasil ambíguo
 
-- **Data:** 2026-07-20 (atualizado 2026-07-20)
+- **Data:** 2026-07-20 (confirmado na prática em 2026-07-27)
 - **Tipo:** Risco/Validação pendente
 - **Módulo:** Negócio / Radar / Collabs / Performance
 - **Prioridade:** Alta
-- **Status:** Em análise
+- **Status:** ⚠️ Risco se concretizou — bloqueia teste real agora
+
+**Confirmação real (2026-07-27):** na primeira tentativa de autorização OAuth de verdade, com uma conta de criador **brasileira** confirmada, a tela do TikTok retornou **"Not available in your region"**. Ainda não isolamos se a causa raiz é (a) a região da conta do criador, (b) o mercado-alvo do app estar configurado só como Estados Unidos (decisão nossa, de antes), ou (c) geolocalização por IP de quem está autorizando (acesso vindo do Brasil) — provavelmente uma combinação de (a) e (b).
+
+**Próximo passo de diagnóstico:** verificar se dá pra adicionar Brasil como mercado-alvo do app pro lado do **criador** especificamente (campo diferente do "Vendedores-alvo" que vimos na tela de Publicar — aquele é sobre sellers, não sobre quem pode autorizar via OAuth de criador). Se não existir essa opção, o caminho alternativo é testar com uma conta de criador de US/SEA pra confirmar que o app funciona tecnicamente, e tratar "criador brasileiro" como bloqueado até o TikTok abrir a região.
 
 **Atualização — mercados confirmados:**
 
