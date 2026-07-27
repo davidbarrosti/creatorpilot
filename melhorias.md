@@ -139,6 +139,8 @@ As 4 qualificações vistas inicialmente (Catálogo/Anúncio de produtos, Gerenc
 **Ação sugerida:**
 Ignorar/não submeter as 4 qualificações "Rascunho - Aguardando envio" vistas anteriormente — não são o caminho certo. Prosseguir direto para "Create your App" como Developer.
 
+**Confirmação final (2026-07-27):** app CreatorPilot criado com sucesso. A tela de scopes do app mostra as categorias reais disponíveis: Shops, Catalog, Orders, Returns, Promotions, Customer Service, Accounting & Finance e **Affiliate** — confirmando visualmente, direto no console, que a categoria existe como previsto. Ver bugs.md BUG-001 (resolvido) para o resto do histórico.
+
 ---
 
 ### MEL-003 — Verificar exigência de entidade/verificação de negócio para registro no Partner Center

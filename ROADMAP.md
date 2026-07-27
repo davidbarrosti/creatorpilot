@@ -47,43 +47,34 @@
 
 ---
 
-## 🔐 Sprint 1: Auth & Layout (Week 2)
+## 🔐 Sprint 1: Auth & Layout (Week 2) — ✅ concluído em 2026-07-27
 **Goal:** Authentication flow and responsive layout foundation
 
-- [ ] **Authentication**
-  - [ ] Supabase Auth setup (email/magic link)
-  - [ ] Create login page (`src/app/auth/login/page.tsx`)
-  - [ ] Create signup page
-  - [ ] Magic link email integration
-  - [ ] Auth guards (middleware to protect /dashboard)
-  - [ ] Test: Sign up → verify email → login
+- [x] **Authentication**
+  - [x] Supabase Auth setup (email/magic link) — projeto real "TiktokCreator" criado e conectado
+  - [x] Create login page (`src/app/login/page.tsx` — sem separar signup: `signInWithOtp` já cobre os dois, ver docs/ARCHITECTURE.md)
+  - [x] Magic link email integration — testado de ponta a ponta com e-mail real
+  - [x] Auth guards (`src/proxy.ts` — Next.js 16 renomeou middleware.ts, protege /dashboard e redireciona /login → /dashboard/radar se já logado)
+  - [x] Test: Sign up → verify email → login — confirmado em produção local
 
-- [ ] **Core Layout**
-  - [ ] Dashboard layout (`src/app/dashboard/layout.tsx`)
-  - [ ] Sidebar navigation (desktop)
-  - [ ] Bottom navigation (mobile)
-  - [ ] User profile menu
-  - [ ] Dark mode toggle (optional)
-  - [ ] Responsive breakpoints (mobile: 375px, tablet: 768px, desktop: 1024px)
+- [x] **Core Layout**
+  - [x] Dashboard layout (`src/app/dashboard/layout.tsx`)
+  - [x] Sidebar navigation (desktop) — `src/components/layout/DashboardNav.tsx`
+  - [x] Bottom navigation (mobile) — mesmo componente, responsivo via Tailwind (`md:` breakpoint)
+  - [x] User profile menu — só botão "Sair" por enquanto, menu completo fica pra quando tiver mais ações
+  - [ ] Dark mode toggle — adiado (era opcional)
+  - [x] Responsive breakpoints — testado com DevTools, sidebar some/bottom nav aparece abaixo de 768px
 
-- [ ] **Onboarding Flow**
-  - [ ] Onboarding wizard after signup
-  - [ ] Select niche/category
-  - [ ] Configure profile (name, avatar, bio)
-  - [ ] Save preferences to database
-  - [ ] Redirect to dashboard on complete
+- [x] **Onboarding Flow**
+  - [x] Onboarding wizard after signup (`src/app/dashboard/onboarding/`)
+  - [x] Select niche/category
+  - [ ] Configure profile (name, avatar, bio) — adiado, só nicho por enquanto (suficiente pro Radar)
+  - [x] Save preferences to database (`profiles.niche`, `onboarding_completed`)
+  - [x] Redirect to dashboard on complete
 
-- [ ] **Module Placeholders**
-  - [ ] Create empty pages for all 5 modules:
-    - [ ] `/dashboard/radar`
-    - [ ] `/dashboard/briefing`
-    - [ ] `/dashboard/collabs`
-    - [ ] `/dashboard/performance`
-    - [ ] `/dashboard/calendar`
-  - [ ] Add navigation links
-  - [ ] Test routing
+- [x] **Module Placeholders** — feito no Sprint 0, ver ali
 
-**Success Criteria:** Can login, see all 5 module pages, responsive on mobile/desktop
+**Success Criteria:** ✅ Login com e-mail real, onboarding salva no Supabase, todas as 5 páginas acessíveis, responsivo confirmado em mobile e desktop.
 
 ---
 

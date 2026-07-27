@@ -40,9 +40,13 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  if (user && request.nextUrl.pathname === "/login") {
+    return NextResponse.redirect(new URL("/dashboard/radar", request.url));
+  }
+
   return response;
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/login"],
 };

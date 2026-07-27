@@ -46,10 +46,10 @@ Arquivo vivo para registrar erros encontrados durante o desenvolvimento. Um bug 
 
 ### BUG-001 — Formulário de criação de serviço no TikTok Shop Partner Center não avança
 
-- **Data:** 2026-07-20
+- **Data:** 2026-07-20 (resolvido 2026-07-27)
 - **Módulo:** Infra (registro externo, não é código nosso)
-- **Severidade:** 🟠 Alta (bloqueia o Sprint 0 — não dá pra criar o app)
-- **Status:** Provavelmente destravado — a confirmar
+- **Severidade:** 🟠 Alta (bloqueava o Sprint 0/2 — não dava pra criar o app)
+- **Status:** ✅ Resolvido
 - **Ambiente:** TikTok Shop Partner Center (produção, console deles)
 
 **Descrição:**
@@ -68,4 +68,8 @@ Ao criar o app CreatorPilot no Partner Center (fluxo `/service/create`), o formu
 Não é um bug de UX — é uma trava proposital. A conta DDNS Soluções tem 4 qualificações de "Desenvolvedor de apps" pré-notificadas (Catálogo/Anúncio de produtos, Conectores, Multicanal, Impressão sob demanda), mas **todas em estado "Rascunho - Aguardando envio"** — nenhuma ativa/aprovada. O botão "Criar" em `/service/create` exige pelo menos uma qualificação de Desenvolvedor de apps **ativa** (submetida e aprovada) antes de permitir a criação de um novo app/serviço.
 
 **Correção aplicada:**
-Em 2026-07-27, a TikTok Shop Partner Center aprovou a qualificação **"Analytics & Reporting - Brazil"** pra conta DDNS Soluções ("You may now log into the TikTok Shop Partner Center as our partner"). Não é a categoria "Affiliate" que tínhamos identificado como ideal — precisa confirmar se essa aprovação já é suficiente pra destravar `/service/create`, e se o app criado como "Creator / affiliate integrator" + "Customer Engagement → Affiliate" consegue mesmo assim (essas são seleções feitas na hora de criar o app, independentes da qualificação de "Desenvolvedor de apps" aprovada). Próximo passo: tentar `/service/create` de novo.
+Em 2026-07-27, a TikTok Shop Partner Center aprovou a qualificação **"Analytics & Reporting - Brazil"** pra conta DDNS Soluções, o que já bastou pra destravar `/service/create`. App **CreatorPilot** criado com sucesso como serviço público. Confirmado na própria tela de scopes do console: a categoria **"Affiliate (AFFS & A...)"** existe de fato, ao lado de Shops, Catalog, Orders, Returns, Promotions, Customer Service, Accounting & Finance — bate exatamente com o que o MEL-005/docs/API.md previa.
+
+App Key e App Secret gerados e salvos em `.env.local` (nunca commitados — ver `.gitignore`). Secret leva até 10 min pra ativar segundo o próprio console.
+
+**Próximo passo:** ir em Manage API do app criado e habilitar os scopes da categoria Affiliate (prefixo `creator.*`), depois testar uma chamada real.

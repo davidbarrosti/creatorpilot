@@ -4,11 +4,11 @@
 
 A unified cockpit for creators to discover trending products, generate AI-powered content briefs, manage collaborations, track performance, and plan their content calendar — all in one place.
 
-![Status](https://img.shields.io/badge/status-Sprint%200%20done-blue)
-![TikTok Shop Partner](https://img.shields.io/badge/TikTok%20Shop-Registration%20Blocked-red)
+![Status](https://img.shields.io/badge/status-Sprint%201%20done-blue)
+![TikTok Shop Partner](https://img.shields.io/badge/TikTok%20Shop-App%20created-brightgreen)
 ![Stack](https://img.shields.io/badge/Stack-Next.js%2016%20|%20Supabase%20|%20Claude%20API-black)
 
-> **Status atual:** Sprint 0 concluído — projeto Next.js real rodando localmente com dados mockados (sem Supabase nem TikTok configurados ainda). O registro do app no TikTok Shop Partner Center segue bloqueado (ver [bugs.md](bugs.md) — BUG-001) e não existem credenciais reais de TikTok Shop App Key/Secret — não procure por elas ainda.
+> **Status atual:** Sprint 0 e 1 concluídos — auth real com magic link funcionando (Supabase), layout responsivo, onboarding salvando no banco. TikTok Shop: app "CreatorPilot" já foi criado no Partner Center (BUG-001 resolvido, ver [bugs.md](bugs.md)), falta habilitar os scopes da API e testar chamadas reais. Radar segue em modo mock (`NEXT_PUBLIC_USE_MOCK=true`) até isso avançar.
 
 ---
 
@@ -271,5 +271,5 @@ Questions? Issues?
 
 **Built with ❤️ by [D4M4 Soluções](https://d4m4.dev)**
 
-Status: 🔵 **Sprint 0 concluído — Sprint 1 (Auth + Layout) é o próximo.** Registro no TikTok Shop Partner Center segue bloqueado (ver [bugs.md](bugs.md))
+Status: 🔵 **Sprint 0 e 1 concluídos — Sprint 2 (Radar com dados reais) é o próximo**, condicionado a habilitar os scopes da Affiliate Creator API no app já criado (ver [bugs.md](bugs.md) BUG-001)
 Last updated: July 27, 2026

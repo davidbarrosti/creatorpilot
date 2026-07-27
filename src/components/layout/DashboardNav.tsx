@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { signOut } from "@/lib/supabase/auth-client";
 
 const MODULES = [
   { href: "/dashboard/radar", label: "Radar", icon: "🎯" },
@@ -13,6 +14,12 @@ const MODULES = [
 
 export function DashboardNav() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleSignOut() {
+    await signOut();
+    router.push("/login");
+  }
 
   return (
     <>
@@ -32,6 +39,12 @@ export function DashboardNav() {
             {m.icon} {m.label}
           </Link>
         ))}
+        <button
+          onClick={handleSignOut}
+          className="mt-auto rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-500 hover:bg-slate-100"
+        >
+          Sair
+        </button>
       </nav>
 
       {/* Mobile bottom nav */}
