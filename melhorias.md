@@ -132,11 +132,17 @@ Confirmado também: existem **3 famílias de Affiliate API** — Affiliate Selle
 - **Tipo:** Risco/Validação pendente
 - **Módulo:** Negócio / Radar / Collabs / Performance
 - **Prioridade:** Alta
-- **Status:** ⚠️ Risco se concretizou — bloqueia teste real agora
+- **Status:** ⚠️ Risco confirmado — provável restrição de plataforma, não configurável
 
-**Confirmação real (2026-07-27):** na primeira tentativa de autorização OAuth de verdade, com uma conta de criador **brasileira** confirmada, a tela do TikTok retornou **"Not available in your region"**. Ainda não isolamos se a causa raiz é (a) a região da conta do criador, (b) o mercado-alvo do app estar configurado só como Estados Unidos (decisão nossa, de antes), ou (c) geolocalização por IP de quem está autorizando (acesso vindo do Brasil) — provavelmente uma combinação de (a) e (b).
+**Confirmação real (2026-07-27):** na primeira tentativa de autorização OAuth de verdade, com uma conta de criador **brasileira** confirmada, a tela do TikTok retornou **"Not available in your region"**.
 
-**Próximo passo de diagnóstico:** verificar se dá pra adicionar Brasil como mercado-alvo do app pro lado do **criador** especificamente (campo diferente do "Vendedores-alvo" que vimos na tela de Publicar — aquele é sobre sellers, não sobre quem pode autorizar via OAuth de criador). Se não existir essa opção, o caminho alternativo é testar com uma conta de criador de US/SEA pra confirmar que o app funciona tecnicamente, e tratar "criador brasileiro" como bloqueado até o TikTok abrir a região.
+**Investigação de configuração (2026-07-27, mesmo dia):** varredura completa do app CreatorPilot no Partner Center (abas Publicar, Rascunhos, Desenvolvimento, Informações básicas, Webhook, Widget, Distribuição no Mercado de serviços). **Não existe nenhum campo de mercado-alvo/região específico pro lado do criador.** As duas únicas configurações de região que existem — "Vendedores-alvo" (Publicar) e "Distribuição no Mercado de serviços" — são ambas sobre **sellers**, já incluem Brasil, e não têm relação com quem pode autorizar via OAuth de criador.
+
+**Conclusão de trabalho:** o bloqueio é muito provavelmente uma **restrição de plataforma no nível da Affiliate Creator API** (region-locking hardcoded, sem opt-in via Partner Center), não algo que a gente ajusta em configuração. Bate com a pesquisa original: só US e SEA foram confirmados como mercados suportados; Brasil nunca apareceu explicitamente na doc da Affiliate Creator API.
+
+**Implicação de negócio:** o plano original era começar com criadores beta brasileiros — isso pode não ser viável até o TikTok abrir a região (sem previsão). Duas rotas daqui:
+1. Perguntar diretamente ao suporte do TikTok Shop / Discord do Developer Hub se Brasil está no roadmap de mercados suportados pra Affiliate Creator API
+2. Testar com uma conta de criador US/SEA (se disponível) só pra confirmar que o app funciona tecnicamente, e replanejar o público beta inicial pra essas regiões em vez do Brasil
 
 **Atualização — mercados confirmados:**
 
