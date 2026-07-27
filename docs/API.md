@@ -2,9 +2,11 @@
 
 > Pesquisa direta no TikTok Shop Partner Center (conta DDNS Soluções). Detalhe completo do processo de descoberta: [melhorias.md](../melhorias.md) (MEL-001, MEL-002, MEL-005, MEL-006, MEL-007). Status do registro em [bugs.md](../bugs.md) (BUG-001, resolvido).
 
-## Status do registro — ✅ App criado, scope principal pendente de aprovação
+## Status do registro — ✅ App criado, scope principal ATIVO
 
-O app **CreatorPilot** existe no Partner Center (criado em 2026-07-27, ver bugs.md BUG-001). O que falta agora é o scope `creator.affiliate.info` sair do estado "Aguardando envio" — sem ele, nenhuma chamada real funciona ainda. Desenvolvimento segue 100% em modo mock (`NEXT_PUBLIC_USE_MOCK=true`) até isso resolver.
+O app **CreatorPilot** existe no Partner Center (criado em 2026-07-27, ver bugs.md BUG-001). O scope `creator.affiliate.info` — o que sustenta Radar e Performance — está **ativo** (confirmado no mesmo dia, ver melhorias.md MEL-007). `creator.affiliate.link.write` (links de afiliado) ainda precisa ser ativado manualmente (só toggle). `creator.video.write` (Content Posting) não é usado pelo CreatorPilot — não aplicar.
+
+**O que ainda falta pra ter dado real no Radar:** mesmo com o scope ativo, falta (1) uma conta de criador do TikTok Shop já afiliada de verdade pra completar o OAuth, e (2) o corpo real das respostas da API (nomes de campo ainda são chute, ver seção de Endpoints abaixo). Desenvolvimento segue em modo mock (`NEXT_PUBLIC_USE_MOCK=true`) até isso resolver.
 
 ## Identidade correta do CreatorPilot no Partner Center
 

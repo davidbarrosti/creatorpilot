@@ -37,11 +37,20 @@ Arquivo vivo para registrar melhorias, ideias e riscos identificados durante a c
 
 ### MEL-007 — Scope `creator.affiliate.info` pendente de aprovação (próximo bloqueador real)
 
-- **Data:** 2026-07-27
+- **Data:** 2026-07-27 (resolvido 2026-07-27)
 - **Tipo:** Risco/Validação pendente
 - **Módulo:** Radar / Collabs / Performance
 - **Prioridade:** Alta
-- **Status:** ⏳ Aguardando o TikTok (nada a fazer do nosso lado agora)
+- **Status:** ✅ ATIVO — confirmado no console (Manage API)
+
+**Resolução:** `creator.affiliate.info` mudou de "Aguardando envio" pra **Ativo** no mesmo dia. Esse era o scope que sustenta Radar e Performance — desbloqueado.
+
+**Status dos outros 3 scopes da conta (checado no mesmo momento):**
+- `creator.video.write` (Content Posting) — "Aguardando aplicação". **Não aplicar** — não é algo que o CreatorPilot usa (não posta vídeo em nome do criador).
+- `creator.affiliate.link.write` (links de afiliado) — inativo, precisa ativar (só toggle, sem formulário). Necessário pro `generateAffiliateSharingLinks` já implementado.
+- `creator.showcase.write` — inativo, não é prioridade do MVP, pode ficar pra depois.
+
+**⚠️ O que isso NÃO resolve:** ainda falta uma conta de criador do TikTok Shop já afiliada de verdade pra completar o fluxo OAuth e gerar um access token real. Sem isso, `creator.affiliate.info` ativo não traz dado real pro Radar sozinho. Ver a pergunta em aberto sobre isso (ainda sem resposta do usuário).
 
 **Atualização:** confirmado que não existe formulário de justificativa pra esse scope — diferente de outros (ex: "Content Posting", `creator.video.write` — que o CreatorPilot **não precisa**, não posta conteúdo em nome do criador) que têm botão "Aplicar" com formulário. Pra "Affiliate Information" é só um toggle, que já está ativado. Tooltip do próprio console: "Este pacote de API será filtrado durante o processo de autorização, a menos que a avaliação do registro seja aprovada" — ou seja, a solicitação já foi feita automaticamente ao ligar o toggle, só falta a avaliação interna do TikTok. Sem prazo visível.
 
