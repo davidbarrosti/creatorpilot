@@ -1,7 +1,7 @@
 import type { Collab, CollabStatus, ProductCache, ProductFilter } from "@/types";
-import { fetchTikTokCollabs, fetchTikTokProducts } from "./affiliateCreator";
+import { fetchShopProducts, searchTargetCollaborations } from "./affiliateCreator";
 import { getMockCollabs, getMockProducts } from "./mocks";
-import type { TikTokCollabRaw, TikTokProductRaw } from "./types";
+import type { TikTokShopProductRaw, TikTokTargetCollabRaw } from "./types";
 
 /**
  * Public adapter — every module (Radar, Collabs, Performance) should import
@@ -11,7 +11,7 @@ import type { TikTokCollabRaw, TikTokProductRaw } from "./types";
  */
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "true";
 
-function mapTikTokProduct(raw: TikTokProductRaw): ProductCache {
+function mapTikTokProduct(raw: TikTokShopProductRaw): ProductCache {
   return {
     id: raw.product_id,
     title: raw.product_name,
@@ -32,6 +32,8 @@ function mapTikTokProduct(raw: TikTokProductRaw): ProductCache {
   };
 }
 
+// ⚠️ Vocabulário de status ainda não confirmado — testing tool não revelou o
+// payload de resposta sem token válido. Ajustar assim que tivermos um exemplo real.
 const TIKTOK_STATUS_MAP: Record<string, CollabStatus> = {
   INVITED: "invited",
   ACCEPTED: "accepted",
@@ -42,12 +44,12 @@ const TIKTOK_STATUS_MAP: Record<string, CollabStatus> = {
   FINISHED: "finished",
 };
 
-function mapTikTokCollab(raw: TikTokCollabRaw, userId: string): Collab {
+function mapTikTokTargetCollab(raw: TikTokTargetCollabRaw, userId: string): Collab {
   return {
-    id: raw.collaboration_id,
+    id: raw.target_collaboration_id,
     user_id: userId,
     product_id: raw.product_id,
-    collaboration_type: raw.collaboration_type === "OPEN" ? "open" : "target",
+    collaboration_type: "target",
     status: TIKTOK_STATUS_MAP[raw.status] ?? "invited",
     commission_rate: parseFloat(raw.commission_rate),
     seller_name: raw.seller_name ?? null,
@@ -59,10 +61,10 @@ function mapTikTokCollab(raw: TikTokCollabRaw, userId: string): Collab {
     gmv_generated: 0,
     commission_earned: 0,
     commission_status: "pending",
-    started_at: new Date(raw.created_time * 1000).toISOString(),
-    last_activity_at: new Date(raw.updated_time * 1000).toISOString(),
-    created_at: new Date(raw.created_time * 1000).toISOString(),
-    updated_at: new Date(raw.updated_time * 1000).toISOString(),
+    started_at: new Date(raw.create_time * 1000).toISOString(),
+    last_activity_at: new Date(raw.update_time * 1000).toISOString(),
+    created_at: new Date(raw.create_time * 1000).toISOString(),
+    updated_at: new Date(raw.update_time * 1000).toISOString(),
   };
 }
 
@@ -70,27 +72,33 @@ export async function getProducts(filters?: ProductFilter): Promise<ProductCache
   if (USE_MOCK) return getMockProducts(filters);
 
   const accessToken = await getAccessTokenForCurrentUser();
-  const raw = await fetchTikTokProducts(accessToken, filters);
+  const raw = await fetchShopProducts(accessToken, filters);
   return raw.map(mapTikTokProduct);
 }
 
+/**
+ * Retorna as Target Collaborations do criador. Open Collaborations já
+ * aceitas ainda não têm endpoint creator-side confirmado — ver comentário em
+ * affiliateCreator.ts. Por enquanto, no modo real, só cobre Target.
+ */
 export async function getCollabs(userId: string): Promise<Collab[]> {
   if (USE_MOCK) return getMockCollabs();
 
   const accessToken = await getAccessTokenForCurrentUser();
-  const raw = await fetchTikTokCollabs(accessToken);
-  return raw.map((c) => mapTikTokCollab(c, userId));
+  const raw = await searchTargetCollaborations(accessToken);
+  return raw.map((c) => mapTikTokTargetCollab(c, userId));
 }
 
 /**
  * Resolves the current user's TikTok access token, refreshing it if needed.
- * Not implemented yet — depends on the OAuth flow being wired to
- * `profiles.tiktok_access_token` (encrypted) once the app registration
- * (bugs.md BUG-001) is unblocked.
+ * Not implemented yet — depende do fluxo OAuth estar ligado a
+ * `profiles.tiktok_access_token` (encrypted) e do scope `creator.affiliate.info`
+ * estar aprovado (hoje "Aguardando envio", ver melhorias.md).
  */
 async function getAccessTokenForCurrentUser(): Promise<string> {
   throw new Error(
     "TikTok access token resolution not implemented yet — real API mode requires " +
-      "the OAuth flow to be wired up. Use NEXT_PUBLIC_USE_MOCK=true until then.",
+      "the OAuth flow to be wired up and creator.affiliate.info to be approved. " +
+      "Use NEXT_PUBLIC_USE_MOCK=true until then.",
   );
 }

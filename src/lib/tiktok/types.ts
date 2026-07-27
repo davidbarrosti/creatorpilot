@@ -1,10 +1,12 @@
 /**
  * Raw shapes returned by the TikTok Shop Affiliate Creator API.
- * Field names here are our best guess based on docs/API.md — TikTok's exact
- * response schema is still unconfirmed because the app registration is
- * blocked (see bugs.md BUG-001). Once Manage API scopes are enumerated,
- * reconcile these against the real payloads and adjust the mappers in
- * affiliateCreator.ts accordingly.
+ *
+ * Endpoint paths are confirmed (see docs/API.md, partner.tiktokshop.com/dev/api-testing-tool,
+ * checked 2026-07-27), but the exact field names in each response body are
+ * still our best guess — the testing tool wouldn't show them without a
+ * valid access token, and `creator.affiliate.info` (the scope covering most
+ * of this) was still pending submission. Reconcile against real payloads
+ * once a token is available and adjust affiliateCreator.ts's mappers.
  */
 
 export interface TikTokOAuthTokenResponse {
@@ -16,7 +18,8 @@ export interface TikTokOAuthTokenResponse {
   seller_name?: string;
 }
 
-export interface TikTokProductRaw {
+/** GET /affiliate/{version}/shop_products */
+export interface TikTokShopProductRaw {
   product_id: string;
   product_name: string;
   product_desc?: string;
@@ -29,18 +32,19 @@ export interface TikTokProductRaw {
   product_selection_score?: number;
 }
 
-export interface TikTokCollabRaw {
-  collaboration_id: string;
+/** POST /affiliate_creator/{version}/target_collaborations/search */
+export interface TikTokTargetCollabRaw {
+  target_collaboration_id: string;
   product_id: string;
-  collaboration_type: "OPEN" | "TARGET";
-  status: string; // TikTok's own status vocabulary — mapped in affiliateCreator.ts
+  status: string; // TikTok's own status vocabulary — mapped in api.ts
   commission_rate: string;
   seller_name?: string;
   seller_brief?: string;
-  created_time: number; // unix seconds
-  updated_time: number;
+  create_time: number; // unix seconds
+  update_time: number;
 }
 
+/** POST /affiliate_creator/{version}/orders/search */
 export interface TikTokOrderRaw {
   order_id: string;
   product_id: string;
@@ -48,4 +52,10 @@ export interface TikTokOrderRaw {
   commission_amount: string;
   order_status: string;
   create_time: number;
+}
+
+/** POST /affiliate_creator/{version}/affiliate_sharing_links/generate_batch */
+export interface TikTokSharingLinkRaw {
+  product_id: string;
+  sharing_link: string;
 }

@@ -35,6 +35,27 @@ Arquivo vivo para registrar melhorias, ideias e riscos identificados durante a c
 
 ## Itens já identificados (pesquisa inicial — 2026-07-20)
 
+### MEL-007 — Scope `creator.affiliate.info` pendente de aprovação (próximo bloqueador real)
+
+- **Data:** 2026-07-27
+- **Tipo:** Risco/Validação pendente
+- **Módulo:** Radar / Collabs / Performance
+- **Prioridade:** Alta
+- **Status:** Aberto
+
+**Contexto/Descrição:**
+Com o app CreatorPilot já criado (BUG-001 resolvido), fomos em Manage API confirmar os scopes da categoria Affiliate. Existem 3: `creator.affiliate.info` (produtos, perfil, métricas — o que sustenta Radar e Performance), `creator.affiliate.link.write` (links de afiliado) e `creator.showcase.write` (produtos em destaque). Os dois últimos já aparecem como "Novo" (disponíveis), mas **`creator.affiliate.info` está "Aguardando envio"** — precisa ser submetido e aprovado antes de qualquer chamada real funcionar.
+
+Endpoints reais também já foram mapeados via API Testing Tool (`partner.tiktokshop.com/dev/api-testing-tool`) — ver docs/API.md pra lista completa. Corpo de request/response ainda não confirmado (a ferramenta não revela sem token válido).
+
+**Por que importa:**
+É o próximo (e provavelmente último) bloqueador externo antes do Radar poder sair do modo mock. Sem `creator.affiliate.info` aprovado, não tem token real pra testar nada.
+
+**Ação sugerida:**
+Submeter `creator.affiliate.info` em Manage API. Enquanto isso, também vale confirmar: (1) se existe endpoint creator-side pra Open Collaborations aceitas (só achamos o lado seller, `/affiliate_seller/.../open_collaborations/search`), e (2) o valor real de `{version}` nos paths — hoje é placeholder configurável (`TIKTOK_SHOP_API_VERSION`, default `202501`).
+
+---
+
 ### MEL-001 — TAP (Fase 3 do PRD) é um tipo de Partner diferente de "Developer" — exige registro/identidade separada
 
 - **Data:** 2026-07-20 (atualizado 2026-07-20)
