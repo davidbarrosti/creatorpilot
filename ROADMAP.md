@@ -28,7 +28,7 @@
 
 - [x] **PWA Setup**
   - [x] Create `public/manifest.json`
-  - [ ] Create `public/icons/icon-192.png` + `icon-512.png` — **pendente, faltam os assets de marca reais** (ver `public/icons/README.md`)
+  - [x] Create `public/icons/icon-192.png` + `icon-512.png` — logo provisório (alvo/radar, combina com a linguagem visual do score de oportunidade); pode ser refeito com identidade visual definitiva mais pra frente
   - [x] Setup service worker (`public/sw.js` + registro em `src/components/layout/ServiceWorkerRegister.tsx`)
   - [x] Configure `next.config.ts` for PWA support
 

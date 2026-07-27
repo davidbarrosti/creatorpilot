@@ -1,1 +1,0 @@
-Faltam os ícones reais do app: `icon-192.png` (192x192) e `icon-512.png` (512x512), referenciados em `public/manifest.json`. Sem eles o PWA não é instalável corretamente. Pendente de ativos de marca (logo do CreatorPilot).
