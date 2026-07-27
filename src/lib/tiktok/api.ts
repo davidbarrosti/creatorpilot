@@ -1,7 +1,18 @@
 import type { Collab, CollabStatus, ProductCache, ProductFilter } from "@/types";
+import { getCurrentUser } from "@/lib/supabase/auth-server";
+import { createClient } from "@/lib/supabase/server";
+import { decrypt, encrypt } from "@/lib/utils/encryption";
 import { fetchShopProducts, searchTargetCollaborations } from "./affiliateCreator";
+import { refreshAccessToken } from "./auth";
 import { getMockCollabs, getMockProducts } from "./mocks";
 import type { TikTokShopProductRaw, TikTokTargetCollabRaw } from "./types";
+
+export class TikTokNotConnectedError extends Error {
+  constructor() {
+    super("User has not connected a TikTok Shop account yet.");
+    this.name = "TikTokNotConnectedError";
+  }
+}
 
 /**
  * Public adapter — every module (Radar, Collabs, Performance) should import
@@ -89,16 +100,47 @@ export async function getCollabs(userId: string): Promise<Collab[]> {
   return raw.map((c) => mapTikTokTargetCollab(c, userId));
 }
 
+const REFRESH_SAFETY_MARGIN_MS = 5 * 60 * 1000; // refresh 5 min before real expiry
+
 /**
- * Resolves the current user's TikTok access token, refreshing it if needed.
- * Not implemented yet — depende do fluxo OAuth estar ligado a
- * `profiles.tiktok_access_token` (encrypted) e do scope `creator.affiliate.info`
- * estar aprovado (hoje "Aguardando envio", ver melhorias.md).
+ * Resolves the current user's TikTok access token, refreshing it in the
+ * background if it's expired or close to it. Throws TikTokNotConnectedError
+ * if the user never went through /api/tiktok/connect.
  */
 async function getAccessTokenForCurrentUser(): Promise<string> {
-  throw new Error(
-    "TikTok access token resolution not implemented yet — real API mode requires " +
-      "the OAuth flow to be wired up and creator.affiliate.info to be approved. " +
-      "Use NEXT_PUBLIC_USE_MOCK=true until then.",
-  );
+  const user = await getCurrentUser();
+  if (!user) throw new Error("No authenticated CreatorPilot user");
+
+  const supabase = await createClient();
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("tiktok_access_token, tiktok_refresh_token, token_expires_at")
+    .eq("id", user.id)
+    .single();
+
+  if (error) throw error;
+  if (!profile?.tiktok_access_token || !profile.tiktok_refresh_token) {
+    throw new TikTokNotConnectedError();
+  }
+
+  const expiresAt = profile.token_expires_at ? new Date(profile.token_expires_at).getTime() : 0;
+  const isExpiringSoon = Date.now() >= expiresAt - REFRESH_SAFETY_MARGIN_MS;
+
+  if (!isExpiringSoon) {
+    return decrypt(profile.tiktok_access_token);
+  }
+
+  const refreshToken = decrypt(profile.tiktok_refresh_token);
+  const refreshed = await refreshAccessToken(refreshToken);
+
+  await supabase
+    .from("profiles")
+    .update({
+      tiktok_access_token: encrypt(refreshed.access_token),
+      tiktok_refresh_token: encrypt(refreshed.refresh_token),
+      token_expires_at: new Date(Date.now() + refreshed.expires_in * 1000).toISOString(),
+    })
+    .eq("id", user.id);
+
+  return refreshed.access_token;
 }
