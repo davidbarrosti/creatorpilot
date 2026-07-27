@@ -41,7 +41,9 @@ Arquivo vivo para registrar melhorias, ideias e riscos identificados durante a c
 - **Tipo:** Risco/Validação pendente
 - **Módulo:** Radar / Collabs / Performance
 - **Prioridade:** Alta
-- **Status:** Aberto
+- **Status:** ⏳ Aguardando o TikTok (nada a fazer do nosso lado agora)
+
+**Atualização:** confirmado que não existe formulário de justificativa pra esse scope — diferente de outros (ex: "Content Posting") que têm botão "Aplicar" com formulário. Pra "Affiliate Information" é só um toggle, que já está ativado. Tooltip do próprio console: "Este pacote de API será filtrado durante o processo de autorização, a menos que a avaliação do registro seja aprovada" — ou seja, a solicitação já foi feita automaticamente ao ligar o toggle, só falta a avaliação interna do TikTok. Sem prazo visível.
 
 **Contexto/Descrição:**
 Com o app CreatorPilot já criado (BUG-001 resolvido), fomos em Manage API confirmar os scopes da categoria Affiliate. Existem 3: `creator.affiliate.info` (produtos, perfil, métricas — o que sustenta Radar e Performance), `creator.affiliate.link.write` (links de afiliado) e `creator.showcase.write` (produtos em destaque). Os dois últimos já aparecem como "Novo" (disponíveis), mas **`creator.affiliate.info` está "Aguardando envio"** — precisa ser submetido e aprovado antes de qualquer chamada real funcionar.
