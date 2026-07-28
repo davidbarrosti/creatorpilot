@@ -140,6 +140,8 @@ Confirmado também: existem **3 famílias de Affiliate API** — Affiliate Selle
 
 **Conclusão de trabalho:** o bloqueio é muito provavelmente uma **restrição de plataforma no nível da Affiliate Creator API** (region-locking hardcoded, sem opt-in via Partner Center), não algo que a gente ajusta em configuração. Bate com a pesquisa original: só US e SEA foram confirmados como mercados suportados; Brasil nunca apareceu explicitamente na doc da Affiliate Creator API.
 
+**Evidência adicional (2026-07-27):** confirmado que a conta de teste é uma conta de criador afiliado **real e ativa** no TikTok Shop nativo (BR, em BRL) — "Criador Destaque", GMV tracking funcionando, ferramentas de vitrine/amostras/colaboração acessíveis normalmente dentro do app do TikTok. Isso descarta a hipótese de "conta inválida/não afiliada" — o app nativo funciona perfeitamente pra essa conta. O bloqueio é especificamente da **Affiliate Creator API pra apps de terceiros** (nosso caso), não da elegibilidade da conta como criador afiliado. Reforça que é uma restrição de plataforma no nível de acesso via API/developer, isolada do produto nativo.
+
 **Implicação de negócio:** o plano original era começar com criadores beta brasileiros — isso pode não ser viável até o TikTok abrir a região (sem previsão). Duas rotas daqui:
 1. Perguntar diretamente ao suporte do TikTok Shop / Discord do Developer Hub se Brasil está no roadmap de mercados suportados pra Affiliate Creator API
 2. Testar com uma conta de criador US/SEA (se disponível) só pra confirmar que o app funciona tecnicamente, e replanejar o público beta inicial pra essas regiões em vez do Brasil
