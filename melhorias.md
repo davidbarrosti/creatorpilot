@@ -144,6 +144,8 @@ Isso **descarta** a hipótese alternativa levantada mais cedo hoje (questionári
 
 **E-mail de resposta ao TikTok enviado 2026-07-28** confirmando os 3 pontos pedidos na avaliação de segurança/privacidade — ver `davidtisjm@gmail.com` e arquivos em `creatorpilot-assets-loja/`. Isso resolve (ou deveria resolver) a avaliação de segurança/privacidade, mas **não é a causa do erro de região** — são dois problemas paralelos e independentes.
 
+**Nova pista (2026-07-28, pesquisa pública):** existe acesso a **sandbox** pra Affiliate APIs, mas não é automático — "To request sandbox access, submit a ticket through the partner center help desk; approval is usually within 24 hours." Sandbox geralmente usa dados sintéticos e não deveria ter o mesmo bloqueio de região da shop real — é o caminho mais rápido pra testar sem depender de resolver o erro 36003006 em produção. Ação: abrir chamado no help desk do Partner Center pedindo acesso sandbox pro app CreatorPilot.
+
 **Confirmação real (2026-07-27):** na primeira tentativa de autorização OAuth de verdade, com uma conta de criador **brasileira** confirmada, a tela do TikTok retornou **"Not available in your region"**.
 
 **Investigação de configuração (2026-07-27, mesmo dia):** varredura completa do app CreatorPilot no Partner Center (abas Publicar, Rascunhos, Desenvolvimento, Informações básicas, Webhook, Widget, Distribuição no Mercado de serviços). **Não existe nenhum campo de mercado-alvo/região específico pro lado do criador.** As duas únicas configurações de região que existem — "Vendedores-alvo" (Publicar) e "Distribuição no Mercado de serviços" — são ambas sobre **sellers**, já incluem Brasil, e não têm relação com quem pode autorizar via OAuth de criador.
