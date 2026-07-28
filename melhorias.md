@@ -132,9 +132,17 @@ Confirmado também: existem **3 famílias de Affiliate API** — Affiliate Selle
 - **Tipo:** Risco/Validação pendente
 - **Módulo:** Negócio / Radar / Collabs / Performance
 - **Prioridade:** Alta
-- **Status:** ⚠️ Risco confirmado, MAS causa raiz agora em dúvida — ver hipótese alternativa abaixo (2026-07-28)
+- **Status:** ✅ Causa raiz confirmada com código de erro específico (2026-07-28) — é região, não segurança/privacidade
 
-**⚠️ Hipótese alternativa levantada em 2026-07-28:** recebemos e-mail do TikTok no mesmo período informando que a submissão de "Data Security and Privacy" **não foi aprovada** ("you do not currently meet the requirements to access TikTok Shop user data via TikTok Shop APIs"). É possível que "Not available in your region" seja na verdade uma mensagem genérica/mal rotulada que aparece quando o app não está autorizado a acessar dado de usuário por **qualquer** motivo — incluindo essa avaliação de segurança/privacidade reprovada — e não uma restrição geográfica de verdade sobre o Brasil. **Não validado ainda.** Resposta enviada ao TikTok confirmando os pontos pedidos (ver `davidtisjm@gmail.com`, arquivos em `creatorpilot-assets-loja/tiktok-reply-email.txt` e `tiktok-data-handling-commitment.txt`). Próximo passo: reprocessar a avaliação e **testar a autorização OAuth de novo** — se funcionar, confirma que nunca foi sobre região; se continuar dando o mesmo erro, a região volta a ser a explicação mais provável.
+**✅ Causa raiz confirmada (2026-07-28):** capturamos as respostas JSON reais que a própria página de autorização do TikTok faz internamente (via debug do navegador). A chamada `/api/auth/creator/app?app_key=...` retorna:
+```json
+{ "code": 36003006, "message": "Your APP is not authorized in your shop region" }
+```
+Isso **descarta** a hipótese alternativa levantada mais cedo hoje (questionário de segurança/privacidade) — a chamada de scopes (`/api/auth/app/scopes`) retornou `code: 0 / success`, confirmando que os scopes (`creator.affiliate.info`, `creator.affiliate.link.write`) estão liberados e não são o problema. O erro é especificamente sobre **autorização de região da shop**, não sobre segurança/privacidade nem sobre scopes. Testado de novo após reenviar o questionário corrigido — erro idêntico, confirmando que não era essa a causa.
+
+**Hipótese de trabalho pro próximo passo:** o app CreatorPilot ainda está em status **"Rascunhos"** (nunca completou o fluxo de Publicar — faltam as avaliações de Anúncios e de Aplicativo, além da de Segurança/Privacidade que acabamos de reenviar). É possível que a autorização de mercado ("Vendedores-alvo: Brasil", já configurada) só passe a valer de verdade depois que o app for **publicado**, não só configurado em rascunho. Precisa confirmar isso, ou perguntar direto ao suporte com o código de erro exato (muito mais fácil de obter resposta específica agora do que com a mensagem genérica "Not available in your region").
+
+**E-mail de resposta ao TikTok enviado 2026-07-28** confirmando os 3 pontos pedidos na avaliação de segurança/privacidade — ver `davidtisjm@gmail.com` e arquivos em `creatorpilot-assets-loja/`. Isso resolve (ou deveria resolver) a avaliação de segurança/privacidade, mas **não é a causa do erro de região** — são dois problemas paralelos e independentes.
 
 **Confirmação real (2026-07-27):** na primeira tentativa de autorização OAuth de verdade, com uma conta de criador **brasileira** confirmada, a tela do TikTok retornou **"Not available in your region"**.
 
