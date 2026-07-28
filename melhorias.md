@@ -132,7 +132,9 @@ Confirmado também: existem **3 famílias de Affiliate API** — Affiliate Selle
 - **Tipo:** Risco/Validação pendente
 - **Módulo:** Negócio / Radar / Collabs / Performance
 - **Prioridade:** Alta
-- **Status:** ⚠️ Risco confirmado — provável restrição de plataforma, não configurável
+- **Status:** ⚠️ Risco confirmado, MAS causa raiz agora em dúvida — ver hipótese alternativa abaixo (2026-07-28)
+
+**⚠️ Hipótese alternativa levantada em 2026-07-28:** recebemos e-mail do TikTok no mesmo período informando que a submissão de "Data Security and Privacy" **não foi aprovada** ("you do not currently meet the requirements to access TikTok Shop user data via TikTok Shop APIs"). É possível que "Not available in your region" seja na verdade uma mensagem genérica/mal rotulada que aparece quando o app não está autorizado a acessar dado de usuário por **qualquer** motivo — incluindo essa avaliação de segurança/privacidade reprovada — e não uma restrição geográfica de verdade sobre o Brasil. **Não validado ainda.** Resposta enviada ao TikTok confirmando os pontos pedidos (ver `davidtisjm@gmail.com`, arquivos em `creatorpilot-assets-loja/tiktok-reply-email.txt` e `tiktok-data-handling-commitment.txt`). Próximo passo: reprocessar a avaliação e **testar a autorização OAuth de novo** — se funcionar, confirma que nunca foi sobre região; se continuar dando o mesmo erro, a região volta a ser a explicação mais provável.
 
 **Confirmação real (2026-07-27):** na primeira tentativa de autorização OAuth de verdade, com uma conta de criador **brasileira** confirmada, a tela do TikTok retornou **"Not available in your region"**.
 
