@@ -3,6 +3,8 @@ import { getCurrentUser } from "@/lib/supabase/auth-server";
 import { createClient } from "@/lib/supabase/server";
 import { decrypt, encrypt } from "@/lib/utils/encryption";
 import { fetchShopProducts, searchTargetCollaborations } from "./affiliateCreator";
+import { fetchApifyAffiliateProducts } from "./apify";
+import type { ApifyAffiliateProductRaw } from "./apifyTypes";
 import { refreshAccessToken } from "./auth";
 import { getMockCollabs, getMockProducts } from "./mocks";
 import type { TikTokShopProductRaw, TikTokTargetCollabRaw } from "./types";
@@ -16,11 +18,16 @@ export class TikTokNotConnectedError extends Error {
 
 /**
  * Public adapter — every module (Radar, Collabs, Performance) should import
- * from here, never from affiliateCreator.ts or mocks.ts directly. Switches
- * between mock and real TikTok Shop data based on NEXT_PUBLIC_USE_MOCK, so
- * the rest of the app never needs to know which one is active.
+ * from here, never from affiliateCreator.ts, apify.ts or mocks.ts directly.
+ * Three product data sources, checked in order:
+ *   1. NEXT_PUBLIC_USE_MOCK=true       -> static in-memory mock data
+ *   2. NEXT_PUBLIC_USE_APIFY=true      -> Apify scraper (real US products,
+ *      not the official API — interim source while MEL-006 is unresolved)
+ *   3. neither                         -> official Affiliate Creator API
+ * Collabs always use mock or the official API — Apify has no per-creator data.
  */
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "true";
+const USE_APIFY = process.env.NEXT_PUBLIC_USE_APIFY === "true";
 
 function mapTikTokProduct(raw: TikTokShopProductRaw): ProductCache {
   return {
@@ -38,6 +45,42 @@ function mapTikTokProduct(raw: TikTokShopProductRaw): ProductCache {
     saturation_level: null,
     trend_direction: null,
     creator_count: null,
+    last_synced_at: new Date().toISOString(),
+    created_at: new Date().toISOString(),
+  };
+}
+
+const DEMAND_TO_TREND: Record<string, ProductCache["trend_direction"]> = {
+  high: "rising",
+  medium: "stable",
+  low: "declining",
+};
+
+const COMPETITION_TO_SATURATION: Record<string, ProductCache["saturation_level"]> = {
+  low: "low",
+  medium: "medium",
+  high: "high",
+};
+
+/** Maps the Apify scraper's product shape — see apifyTypes.ts for caveats. */
+function mapApifyProduct(raw: ApifyAffiliateProductRaw): ProductCache {
+  return {
+    id: raw.product_id,
+    title: raw.product_name,
+    description: raw.opportunity_reasons?.join(" ") ?? null,
+    category: raw.category_fit ?? null,
+    price_cents: Math.round(raw.avg_price * 100),
+    currency: raw.currency_symbol === "$" ? "USD" : (raw.currency_symbol ?? "USD"),
+    commission_rate: 0, // não disponível neste actor — só "commission_signal" qualitativo
+    collaboration_type: "open", // não informado pelo actor; produtos públicos assumem Open
+    seller_name: raw.seller ?? raw.brand_name ?? null,
+    image_urls: raw.product_image_url ? [raw.product_image_url] : [],
+    opportunity_score: raw.affiliate_opportunity_score, // já vem pronto do actor
+    saturation_level: raw.competition_signal
+      ? (COMPETITION_TO_SATURATION[raw.competition_signal] ?? null)
+      : null,
+    trend_direction: raw.demand_signal ? (DEMAND_TO_TREND[raw.demand_signal] ?? null) : null,
+    creator_count: raw.creator_signal_count ?? null,
     last_synced_at: new Date().toISOString(),
     created_at: new Date().toISOString(),
   };
@@ -81,6 +124,20 @@ function mapTikTokTargetCollab(raw: TikTokTargetCollabRaw, userId: string): Coll
 
 export async function getProducts(filters?: ProductFilter): Promise<ProductCache[]> {
   if (USE_MOCK) return getMockProducts(filters);
+
+  if (USE_APIFY) {
+    const raw = await fetchApifyAffiliateProducts({ maxItems: 20 });
+    let products = raw.map(mapApifyProduct);
+
+    if (filters?.search) {
+      const q = filters.search.toLowerCase();
+      products = products.filter((p) => p.title.toLowerCase().includes(q));
+    }
+    if (filters?.sortBy === "score") {
+      products.sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0));
+    }
+    return products;
+  }
 
   const accessToken = await getAccessTokenForCurrentUser();
   const raw = await fetchShopProducts(accessToken, filters);
