@@ -27,8 +27,6 @@ export default async function RadarPage({
       <p className="text-sm text-slate-500">
         {products.length} produtos disponíveis
         {process.env.NEXT_PUBLIC_USE_MOCK === "true" && " (dados mockados)"}
-        {process.env.NEXT_PUBLIC_USE_APIFY === "true" &&
-          " (dados reais via Apify — mercado EUA, não é a API oficial do TikTok)"}
       </p>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

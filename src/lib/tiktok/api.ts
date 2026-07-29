@@ -50,38 +50,47 @@ function mapTikTokProduct(raw: TikTokShopProductRaw): ProductCache {
   };
 }
 
-const DEMAND_TO_TREND: Record<string, ProductCache["trend_direction"]> = {
-  high: "rising",
-  medium: "stable",
-  low: "declining",
-};
+/** demandSignal is a free-form phrase ("Very High", "High", "Moderate", ...) — match by substring. */
+function demandSignalToTrend(signal: string): ProductCache["trend_direction"] {
+  const s = signal.toLowerCase();
+  if (s.includes("high")) return "rising";
+  if (s.includes("moderate")) return "stable";
+  return "declining";
+}
 
-const COMPETITION_TO_SATURATION: Record<string, ProductCache["saturation_level"]> = {
-  low: "low",
-  medium: "medium",
-  high: "high",
-};
+/** competitionSignal is also free-form ("Low Saturation", "Validated Demand", "Early / Unproven") — heuristic match. */
+function competitionSignalToSaturation(signal: string): ProductCache["saturation_level"] {
+  const s = signal.toLowerCase();
+  if (s.includes("low") || s.includes("early") || s.includes("unproven")) return "low";
+  if (s.includes("high") || s.includes("saturat")) return "high";
+  return "medium"; // e.g. "Validated Demand"
+}
 
-/** Maps the Apify scraper's product shape — see apifyTypes.ts for caveats. */
+/**
+ * Maps the Apify scraper's product shape — field names confirmed against a
+ * real response on 2026-07-28 (see apifyTypes.ts). No commission data is
+ * available from this actor (public scrape, not authenticated) — commission_rate
+ * is always 0 here, clearly a placeholder, never a real TikTok Shop commission.
+ */
 function mapApifyProduct(raw: ApifyAffiliateProductRaw): ProductCache {
   return {
-    id: raw.product_id,
-    title: raw.product_name,
-    description: raw.opportunity_reasons?.join(" ") ?? null,
-    category: raw.category_fit ?? null,
-    price_cents: Math.round(raw.avg_price * 100),
-    currency: raw.currency_symbol === "$" ? "USD" : (raw.currency_symbol ?? "USD"),
-    commission_rate: 0, // não disponível neste actor — só "commission_signal" qualitativo
+    id: raw.productId,
+    title: raw.name,
+    description: raw.opportunityReasons?.join(" ") ?? null,
+    category: raw.categoryFit ?? null,
+    price_cents: Math.round(raw.amount * 100),
+    currency: raw.currencyName || "USD",
+    commission_rate: 0, // não disponível neste actor — dado público, sem info de comissão real
     collaboration_type: "open", // não informado pelo actor; produtos públicos assumem Open
-    seller_name: raw.seller ?? raw.brand_name ?? null,
-    image_urls: raw.product_image_url ? [raw.product_image_url] : [],
-    opportunity_score: raw.affiliate_opportunity_score, // já vem pronto do actor
-    saturation_level: raw.competition_signal
-      ? (COMPETITION_TO_SATURATION[raw.competition_signal] ?? null)
+    seller_name: raw.shopName ?? null,
+    image_urls: raw.image ? [raw.image] : [],
+    opportunity_score: raw.affiliateOpportunityScore, // já vem pronto do actor
+    saturation_level: raw.competitionSignal
+      ? competitionSignalToSaturation(raw.competitionSignal)
       : null,
-    trend_direction: raw.demand_signal ? (DEMAND_TO_TREND[raw.demand_signal] ?? null) : null,
-    creator_count: raw.creator_signal_count ?? null,
-    last_synced_at: new Date().toISOString(),
+    trend_direction: raw.demandSignal ? demandSignalToTrend(raw.demandSignal) : null,
+    creator_count: null, // não fornecido por este actor
+    last_synced_at: raw.scrapedAt ?? new Date().toISOString(),
     created_at: new Date().toISOString(),
   };
 }
@@ -126,13 +135,12 @@ export async function getProducts(filters?: ProductFilter): Promise<ProductCache
   if (USE_MOCK) return getMockProducts(filters);
 
   if (USE_APIFY) {
-    const raw = await fetchApifyAffiliateProducts({ maxItems: 20 });
-    let products = raw.map(mapApifyProduct);
+    const raw = await fetchApifyAffiliateProducts({
+      queries: filters?.search ? [filters.search] : undefined,
+      maxResultsPerQuery: 20,
+    });
+    const products = raw.map(mapApifyProduct);
 
-    if (filters?.search) {
-      const q = filters.search.toLowerCase();
-      products = products.filter((p) => p.title.toLowerCase().includes(q));
-    }
     if (filters?.sortBy === "score") {
       products.sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0));
     }

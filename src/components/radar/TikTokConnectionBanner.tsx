@@ -35,10 +35,7 @@ export function TikTokConnectionBanner({
 
   return (
     <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
-      <span>
-        Conecte sua conta do TikTok Shop pra ver produtos reais aqui (por enquanto os dados abaixo
-        são de teste).
-      </span>
+      <span>Conecte sua conta do TikTok Shop para personalizar o Radar com seu perfil.</span>
       <a
         href="/api/tiktok/connect"
         className="shrink-0 rounded-lg bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-800"
