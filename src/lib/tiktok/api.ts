@@ -1,12 +1,12 @@
 import type { Collab, CollabStatus, ProductCache, ProductFilter } from "@/types";
-import { getCurrentUser } from "@/lib/supabase/auth-server";
+import { getCurrentProfile, getCurrentUser } from "@/lib/supabase/auth-server";
 import { createClient } from "@/lib/supabase/server";
 import { decrypt, encrypt } from "@/lib/utils/encryption";
 import { fetchShopProducts, searchTargetCollaborations } from "./affiliateCreator";
-import { fetchApifyAffiliateProducts } from "./apify";
-import type { ApifyAffiliateProductRaw } from "./apifyTypes";
+import { mapApifyProduct } from "./apify";
 import { refreshAccessToken } from "./auth";
 import { getMockCollabs, getMockProducts } from "./mocks";
+import { isProductsCacheStale, syncApifyProductsToCache } from "./syncApify";
 import type { TikTokShopProductRaw, TikTokTargetCollabRaw } from "./types";
 
 export class TikTokNotConnectedError extends Error {
@@ -21,8 +21,9 @@ export class TikTokNotConnectedError extends Error {
  * from here, never from affiliateCreator.ts, apify.ts or mocks.ts directly.
  * Three product data sources, checked in order:
  *   1. NEXT_PUBLIC_USE_MOCK=true       -> static in-memory mock data
- *   2. NEXT_PUBLIC_USE_APIFY=true      -> Apify scraper (real US products,
- *      not the official API — interim source while MEL-006 is unresolved)
+ *   2. NEXT_PUBLIC_USE_APIFY=true      -> Apify scraper, cached in
+ *      products_cache (see syncApify.ts) — real US products, not the
+ *      official API, interim source while MEL-006 is unresolved
  *   3. neither                         -> official Affiliate Creator API
  * Collabs always use mock or the official API — Apify has no per-creator data.
  */
@@ -46,51 +47,6 @@ function mapTikTokProduct(raw: TikTokShopProductRaw): ProductCache {
     trend_direction: null,
     creator_count: null,
     last_synced_at: new Date().toISOString(),
-    created_at: new Date().toISOString(),
-  };
-}
-
-/** demandSignal is a free-form phrase ("Very High", "High", "Moderate", ...) — match by substring. */
-function demandSignalToTrend(signal: string): ProductCache["trend_direction"] {
-  const s = signal.toLowerCase();
-  if (s.includes("high")) return "rising";
-  if (s.includes("moderate")) return "stable";
-  return "declining";
-}
-
-/** competitionSignal is also free-form ("Low Saturation", "Validated Demand", "Early / Unproven") — heuristic match. */
-function competitionSignalToSaturation(signal: string): ProductCache["saturation_level"] {
-  const s = signal.toLowerCase();
-  if (s.includes("low") || s.includes("early") || s.includes("unproven")) return "low";
-  if (s.includes("high") || s.includes("saturat")) return "high";
-  return "medium"; // e.g. "Validated Demand"
-}
-
-/**
- * Maps the Apify scraper's product shape — field names confirmed against a
- * real response on 2026-07-28 (see apifyTypes.ts). No commission data is
- * available from this actor (public scrape, not authenticated) — commission_rate
- * is always 0 here, clearly a placeholder, never a real TikTok Shop commission.
- */
-function mapApifyProduct(raw: ApifyAffiliateProductRaw): ProductCache {
-  return {
-    id: raw.productId,
-    title: raw.name,
-    description: raw.opportunityReasons?.join(" ") ?? null,
-    category: raw.categoryFit ?? null,
-    price_cents: Math.round(raw.amount * 100),
-    currency: raw.currencyName || "USD",
-    commission_rate: 0, // não disponível neste actor — dado público, sem info de comissão real
-    collaboration_type: "open", // não informado pelo actor; produtos públicos assumem Open
-    seller_name: raw.shopName ?? null,
-    image_urls: raw.image ? [raw.image] : [],
-    opportunity_score: raw.affiliateOpportunityScore, // já vem pronto do actor
-    saturation_level: raw.competitionSignal
-      ? competitionSignalToSaturation(raw.competitionSignal)
-      : null,
-    trend_direction: raw.demandSignal ? demandSignalToTrend(raw.demandSignal) : null,
-    creator_count: null, // não fornecido por este actor
-    last_synced_at: raw.scrapedAt ?? new Date().toISOString(),
     created_at: new Date().toISOString(),
   };
 }
@@ -135,13 +91,24 @@ export async function getProducts(filters?: ProductFilter): Promise<ProductCache
   if (USE_MOCK) return getMockProducts(filters);
 
   if (USE_APIFY) {
-    const raw = await fetchApifyAffiliateProducts({
-      queries: filters?.search ? [filters.search] : undefined,
-      maxResultsPerQuery: 20,
-    });
-    const products = raw.map(mapApifyProduct);
+    const profile = await getCurrentProfile();
 
-    if (filters?.sortBy === "score") {
+    if (await isProductsCacheStale()) {
+      await syncApifyProductsToCache(profile?.niche);
+    }
+
+    const supabase = await createClient();
+    let query = supabase.from("products_cache").select("*");
+
+    if (filters?.search) {
+      query = query.ilike("title", `%${filters.search}%`);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    const products = (data ?? []) as ProductCache[];
+    if (filters?.sortBy === "score" || !filters?.sortBy) {
       products.sort((a, b) => (b.opportunity_score ?? 0) - (a.opportunity_score ?? 0));
     }
     return products;

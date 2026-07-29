@@ -1,3 +1,4 @@
+import type { ProductCache } from "@/types";
 import type { ApifyAffiliateProductRaw } from "./apifyTypes";
 
 /**
@@ -46,4 +47,49 @@ export async function fetchApifyAffiliateProducts(
   }
 
   return response.json();
+}
+
+/** demandSignal is a free-form phrase ("Very High", "High", "Moderate", ...) — match by substring. */
+function demandSignalToTrend(signal: string): ProductCache["trend_direction"] {
+  const s = signal.toLowerCase();
+  if (s.includes("high")) return "rising";
+  if (s.includes("moderate")) return "stable";
+  return "declining";
+}
+
+/** competitionSignal is also free-form ("Low Saturation", "Validated Demand", "Early / Unproven") — heuristic match. */
+function competitionSignalToSaturation(signal: string): ProductCache["saturation_level"] {
+  const s = signal.toLowerCase();
+  if (s.includes("low") || s.includes("early") || s.includes("unproven")) return "low";
+  if (s.includes("high") || s.includes("saturat")) return "high";
+  return "medium"; // e.g. "Validated Demand"
+}
+
+/**
+ * Maps the Apify scraper's product shape — field names confirmed against a
+ * real response on 2026-07-28 (see apifyTypes.ts). No commission data is
+ * available from this actor (public scrape, not authenticated) — commission_rate
+ * is always 0 here, clearly a placeholder, never a real TikTok Shop commission.
+ */
+export function mapApifyProduct(raw: ApifyAffiliateProductRaw): ProductCache {
+  return {
+    id: raw.productId,
+    title: raw.name,
+    description: raw.opportunityReasons?.join(" ") ?? null,
+    category: raw.categoryFit ?? null,
+    price_cents: Math.round(raw.amount * 100),
+    currency: raw.currencyName || "USD",
+    commission_rate: 0, // não disponível neste actor — dado público, sem info de comissão real
+    collaboration_type: "open", // não informado pelo actor; produtos públicos assumem Open
+    seller_name: raw.shopName ?? null,
+    image_urls: raw.image ? [raw.image] : [],
+    opportunity_score: raw.affiliateOpportunityScore, // já vem pronto do actor
+    saturation_level: raw.competitionSignal
+      ? competitionSignalToSaturation(raw.competitionSignal)
+      : null,
+    trend_direction: raw.demandSignal ? demandSignalToTrend(raw.demandSignal) : null,
+    creator_count: null, // não fornecido por este actor
+    last_synced_at: raw.scrapedAt ?? new Date().toISOString(),
+    created_at: new Date().toISOString(),
+  };
 }
