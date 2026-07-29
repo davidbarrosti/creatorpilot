@@ -31,7 +31,9 @@ export function ProductCard({ product }: { product: ProductCache }) {
 
       <div className="flex items-center justify-between text-sm">
         <span className="font-medium">{formatCurrency(product.price_cents, product.currency)}</span>
-        <span className="text-slate-600">{formatPercent(product.commission_rate)} comissão</span>
+        {product.commission_rate > 0 && (
+          <span className="text-slate-600">{formatPercent(product.commission_rate)} comissão</span>
+        )}
       </div>
 
       <span className="w-fit rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
